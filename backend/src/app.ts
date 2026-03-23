@@ -13,7 +13,10 @@ import enrollmentRoutes from './modules/enrollments/enrollment.routes';
 
 const app: Application = express();
 
-app.use(cors(CORS_OPTIONS));
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(express.json());
 app.use(cookieParser());
 

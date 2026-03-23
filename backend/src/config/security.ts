@@ -1,7 +1,7 @@
 import { CookieOptions } from 'express';
 
 export const CORS_OPTIONS = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: true,
   credentials: true
 };
 

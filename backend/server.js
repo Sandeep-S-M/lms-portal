@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: true,
   credentials: true
 }));
 app.use(express.json());
@@ -20,7 +20,13 @@ app.get('/', (req, res) => {
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+  res.setHeader('X-Deployment-Version', 'server-js-diagnostic-v5');
+  res.status(200).json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    entry_point: 'server.js',
+    cors_info: 'mirroring-active-v5'
+  });
 });
 
 const authRoutes = require('./routes/auth');
