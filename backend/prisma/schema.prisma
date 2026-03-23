@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            BigInt         @id @default(autoincrement())
+  name          String         @db.VarChar(255)
+  email         String         @unique @db.VarChar(255)
+  passwordHash  String         @map("password_hash") @db.VarChar(255)
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @default(now()) @map("updated_at")
+  refreshTokens RefreshToken[]
+  enrollments   Enrollment[]
+  videoProgress VideoProgress[]
+
+  @@map("users")
+  @@index([email])
+}
+
+model RefreshToken {
+  id         BigInt    @id @default(autoincrement())
+  userId     BigInt    @map("user_id")
+  tokenHash  String    @map("token_hash") @db.VarChar(255)
+  expiresAt  DateTime  @map("expires_at")
+  revokedAt  DateTime? @map("revoked_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+  @@index([userId, tokenHash])
+}
+
+model Subject {
+  id          BigInt       @id @default(autoincrement())
+  title       String       @db.VarChar(255)
+  slug        String       @unique @db.VarChar(255)
+  description String?      @db.Text
+  isPublished Boolean      @default(false) @map("is_published")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @default(now()) @map("updated_at")
+  sections    Section[]
+  enrollments Enrollment[]
+
+  @@map("subjects")
+  @@index([slug])
+}
+
+model Section {
+  id         BigInt   @id @default(autoincrement())
+  subjectId  BigInt   @map("subject_id")
+  title      String   @db.VarChar(255)
+  orderIndex Int      @map("order_index")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @default(now()) @map("updated_at")
+  subject    Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  videos     Video[]
+
+  @@unique([subjectId, orderIndex])
+  @@map("sections")
+}
+
+model Video {
+  id             BigInt          @id @default(autoincrement())
+  sectionId      BigInt          @map("section_id")
+  title          String          @db.VarChar(255)
+  description    String?         @db.Text
+  youtubeVideoId String          @map("youtube_video_id") @db.VarChar(50)
+  orderIndex     Int             @map("order_index")
+  durationSeconds Int?           @map("duration_seconds")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @default(now()) @map("updated_at")
+  section        Section         @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  videoProgress  VideoProgress[]
+
+  @@unique([sectionId, orderIndex])
+  @@map("videos")
+}
+
+model Enrollment {
+  id        BigInt   @id @default(autoincrement())
+  userId    BigInt   @map("user_id")
+  subjectId BigInt   @map("subject_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, subjectId])
+  @@map("enrollments")
+}
+
+model VideoProgress {
+  id                   BigInt    @id @default(autoincrement())
+  userId               BigInt    @map("user_id")
+  videoId              BigInt    @map("video_id")
+  lastPositionSeconds  Int       @default(0) @map("last_position_seconds")
+  isCompleted          Boolean   @default(false) @map("is_completed")
+  completedAt          DateTime? @map("completed_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @default(now()) @map("updated_at")
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video                Video     @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+  @@map("video_progress")
+}
