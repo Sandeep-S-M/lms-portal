@@ -17,7 +17,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoId, youtubeId, on
     let isMounted = true;
     
     const loadYouTubeAPI = () => {
-      if (!window.YT) {
+      if (!(window as any).YT) {
         const tag = document.createElement('script');
         tag.src = 'https://www.youtube.com/iframe_api';
         const firstScriptTag = document.getElementsByTagName('script')[0] || document.scripts[0];
@@ -26,7 +26,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoId, youtubeId, on
         } else {
             document.head.appendChild(tag);
         }
-        window.onYouTubeIframeAPIReady = () => {
+        (window as any).onYouTubeIframeAPIReady = () => {
           if (isMounted) initializePlayer();
         };
       } else {
@@ -39,7 +39,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoId, youtubeId, on
         playerRef.current.destroy();
       }
       
-      playerRef.current = new window.YT.Player(`youtube-player-${videoId}`, {
+      playerRef.current = new (window as any).YT.Player(`youtube-player-${videoId}`, {
         videoId: youtubeId,
         playerVars: {
           autoplay: 1,
@@ -49,7 +49,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoId, youtubeId, on
         },
         events: {
           onStateChange: (event: any) => {
-            if (event.data === window.YT.PlayerState.PLAYING) {
+            if (event.data === (window as any).YT.PlayerState.PLAYING) {
               if (intervalRef.current) clearInterval(intervalRef.current);
               intervalRef.current = setInterval(() => {
                 if (playerRef.current && playerRef.current.getCurrentTime) {
@@ -57,13 +57,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoId, youtubeId, on
                 }
               }, 5000); // Emits onProgress every N seconds
             } 
-            else if (event.data === window.YT.PlayerState.PAUSED) {
+            else if (event.data === (window as any).YT.PlayerState.PAUSED) {
               if (intervalRef.current) clearInterval(intervalRef.current);
               if (playerRef.current && playerRef.current.getCurrentTime) {
                  updateProgress(videoId, playerRef.current.getCurrentTime(), false);
               }
             }
-            else if (event.data === window.YT.PlayerState.ENDED) {
+            else if (event.data === (window as any).YT.PlayerState.ENDED) {
               if (intervalRef.current) clearInterval(intervalRef.current);
               
               if (playerRef.current && playerRef.current.getCurrentTime) {
