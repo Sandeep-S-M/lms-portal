@@ -10,6 +10,7 @@ import videoRoutes from './modules/videos/video.routes';
 import progressRoutes from './modules/progress/progress.routes';
 
 import enrollmentRoutes from './modules/enrollments/enrollment.routes';
+import aiRoutes from './modules/ai/ai.routes';
 
 const app: Application = express();
 
@@ -26,5 +27,6 @@ app.use('/api/subjects', subjectRoutes);
 app.use('/api/videos', videoRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/ai', aiRoutes);
 
 export default app;

@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { SubjectSidebar } from '../../../components/Sidebar/SubjectSidebar';
+import { AICourseAssistant } from '../../../components/AI/AICourseAssistant';
 import { AuthGuard } from '../../../components/Auth/AuthGuard';
 import { useSidebarStore } from '../../../store/sidebarStore';
 import { apiClient } from '../../../lib/apiClient';
@@ -26,6 +27,7 @@ export default function SubjectLayout({ children }: { children: React.ReactNode 
         <SubjectSidebar subjectId={subjectId} />
         <div className="flex-1 overflow-y-auto bg-slate-50 relative">
           {children}
+          <AICourseAssistant subjectId={subjectId} />
         </div>
       </div>
     </AuthGuard>
